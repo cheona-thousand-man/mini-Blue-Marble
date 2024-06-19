@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DiceNumberTextScript : MonoBehaviour
+public class DiceNumberText : MonoBehaviour
 {
     Text text;
-    public static int diceNumber;
+    public static int blueDiceNumber, redDiceNumber;
 
     // Start is called before the first frame update
     void Start()
@@ -17,6 +17,6 @@ public class DiceNumberTextScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        text.text = diceNumber.ToString();
+        text.text = $"Red:{redDiceNumber}+Blue:{blueDiceNumber}={redDiceNumber+blueDiceNumber}";
     }
 }
