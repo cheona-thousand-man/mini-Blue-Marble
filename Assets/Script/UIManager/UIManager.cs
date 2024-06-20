@@ -5,14 +5,32 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    public Text currentPlayerInfo;
-    public Text diceResult;
+    public string currentPlayerInfo;
+    public int diceResult;
     public GameObject board;
+
+    public void InitializeUI()
+    {
+        
+    }
 
     public void UpdateUI()
     {
-        currentPlayerInfo.text = $"Current Player : GameManager.Instance.game.currentPlayer.playerName";
-        diceResult.text = $"Dice Result : {GameManager.Instance.uiManager.diceResult}";
+        if (GameManager.Instance == null || GameManager.Instance.game == null || GameManager.Instance.uiManager == null)
+        {
+            Debug.LogError("GameManager, Game, or UIManager instance is null.");
+            return;
+        }
+
+        if (GameManager.Instance.game.currentPlayer == null)
+        {
+            Debug.LogError("Current player is null.");
+            return;
+        }
+
+        currentPlayerInfo = $"Current Player : {GameManager.Instance.game.currentPlayer.playerName}";
+        diceResult = DiceNumberCheck.redDiceNumber + DiceNumberCheck.blueDiceNumber;
+        Debug.Log($"{currentPlayerInfo}의 주사위 결과는 {diceResult}.");
         // 이하 UI 업데이트 로직 추가
     }
 

@@ -1,39 +1,62 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro.EditorUtilities;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
+    public static GameManager Instance { get; private set; }
 
     public Game game;
     public UIManager uiManager;
 
+    // 턴을 종료하기 위한 이벤트
+    public static event Action TurnEndEvent;
+
     void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // 싱글턴 객체가 씬 전환 시 파괴되지 않도록 함
+        }
+        else
+        {
+            Destroy(gameObject); // 이미 싱글턴 인스턴스가 존재하면 파괴
+        }
     }
     
-    void Start()
+    void OnEnable() 
     {
-        StartCoroutine(WaitForGameSettingEnded());
+        // Game 스크립트의 이벤트 구독
+        Game.OnGameSetEvent += InitializeGame;    
     }
 
-    IEnumerator WaitForGameSettingEnded()
+    void OnDisable() 
     {
-        // Game 오브젝트의 이벤트가 발생할 때까지 대기
+        // Game 스크립트의 이벤트 구독 해제
+        Game.OnGameSetEvent -= InitializeGame;    
     }
-    void OnGameSetEnded()
+
+    void InitializeGame()
     {
         game = FindObjectOfType<Game>();
+        uiManager = FindObjectOfType<UIManager>();
+        if (game == null || uiManager == null)
+        {
+            Debug.LogError("Game or UIManager not found!");
+            return;
+        }
         game.StartGame();
-        // uiManager.UpdateUI();
+        uiManager.InitializeUI();
     }
 
     public void HandleTurn()
     {
+        // 주사위 굴리기
+        
+
         game.NextTurn();
         uiManager.UpdateUI();
     }

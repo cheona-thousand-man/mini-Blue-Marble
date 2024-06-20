@@ -1,7 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class Game : MonoBehaviour
 {
@@ -10,9 +10,24 @@ public class Game : MonoBehaviour
     public List<Tile> tiles;
     public int turnNumber;
 
+    // GameManager가 실행되기 위한 이벤트
+    public static event Action OnGameSetEvent;
+
+    void OnEnable() 
+    {
+        // GameManager 스크립트의 이벤트 구독
+        // GameManager.TurnEndEvent += void();    
+    }
+
+    void OnDisable() 
+    {
+        // GameManager 스크립트의 이벤트 구독 해제
+        // GameManager.TurnEndEvent -= void();    
+    }
+
     void Start()
     {
-        StartCoroutine(WaitForAllPlayerActivated());
+        StartCoroutine(WaitForAllPlayerActivated()); // 모든 Player 오브젝트가 활성화 될 때까지 대기 후 실행
     }
 
     void Update()
@@ -29,14 +44,20 @@ public class Game : MonoBehaviour
         Tile[] activeTiles = FindObjectsOfType<Tile>();
         // 가져온 Tile들을 tiles 리스트에 순서대로 추가
         getTiles(activeTiles);
+
+        int index1 = 0;
+        foreach(Tile tile in tiles) Debug.Log($"{++index1}번째 플레이어는 {tile.name}입니다.");
     
         // 활성화된 모든 Player 스크립트 가져오기
         Player[] activePlayers = FindObjectsOfType<Player>();
         // 가져온 Player들을 players 리스트에 무작위로 추가
         getPlayers(activePlayers);
 
-        int index = 0;
-        foreach(Player player in activePlayers) Debug.Log($"{++index}번째 플레이어는 {player.playerName}입니다.");
+        int index2 = 0;
+        foreach(Player player in players) Debug.Log($"{++index2}번째 플레이어는 {player.playerName}입니다.");
+
+        // 이제 게임 시작을 위한 GameManager 실행 이벤트 트리거
+        OnGameSetEvent?.Invoke();
     }
 
     bool AllPlayerAreActivated()
