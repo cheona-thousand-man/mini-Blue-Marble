@@ -1,6 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class RollButton : MonoBehaviour
 {
@@ -10,12 +10,12 @@ public class RollButton : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rDiceRoll = GetComponent<redDiceRoll>();
-        bDiceRoll = GetComponent<blueDiceRoll>();
     }
 
-    void OnButtonClick()
+    public void OnButtonClick()
     {
+        Debug.Log("주사위 버튼이 클릭되었습니다.");
+
         rDiceRoll.RollDice();
         bDiceRoll.RollDice();
     }

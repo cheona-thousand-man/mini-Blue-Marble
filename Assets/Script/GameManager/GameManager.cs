@@ -56,7 +56,11 @@ public class GameManager : MonoBehaviour
     {
         // 주사위 굴리기
         
+        // 플레이어 이동
 
+        // 타일 이벤트 처리
+
+        // 턴 종료
         game.NextTurn();
         uiManager.UpdateUI();
     }

@@ -7,7 +7,7 @@ public class Game : MonoBehaviour
 {
     public Player currentPlayer;
     public List<Player> players;
-    public List<Tile> tiles;
+    public List<Tile> tiles; 
     public int turnNumber;
 
     // GameManager가 실행되기 위한 이벤트

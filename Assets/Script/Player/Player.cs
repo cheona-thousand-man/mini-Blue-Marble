@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
     public string playerName; 
     private Vector3 playerPosition;
     public Vector3 movePosition;
-    public int money;
+    public int money = 10000;
     public List<CountryTile> ownedTiles;
 
     // Move 함수 구현을 위한 변수

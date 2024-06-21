@@ -11,7 +11,7 @@ public class UIManager : MonoBehaviour
 
     public void InitializeUI()
     {
-        
+        // add Initialize UI
     }
 
     public void UpdateUI()
