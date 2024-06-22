@@ -83,7 +83,7 @@ public class Game : MonoBehaviour
             Debug.Log($"플레이어 {player.playerName}의 돈이 {player.money}로 초기화되었습니다.");
         }
         currentPlayer = players[0]; // 첫 번째 플레이어로 시작
-        turnNumber = 0; // 첫 번째 턴으로 시작
+        turnNumber = 1; // 첫 번째 턴으로 시작
         Debug.Log("Game started!");
     }
 

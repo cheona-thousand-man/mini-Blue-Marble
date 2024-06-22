@@ -18,6 +18,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // 현재 위치를 초기화 해 두어야, 게임 시작하자마다 겹치도록 이동하지 않음
         playerName = gameObject.name;
         playerPosition = transform.position;
         movePosition = transform.position;

@@ -2,15 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // TMP UI를 사용하기 위해 추가
+using TMPro;
+using System; // TMP UI를 사용하기 위해 추가
 
 public class UIManager : MonoBehaviour
 {
     // PlayerInfoBG를 참조하는 오브젝트
     public GameObject player1InfoBG, player2InfoBG;
     public TextMeshProUGUI p1NameText, p2NameText, p1MoneyText, p2MoneyText;
+    // Turn 정보를 저장하는 오브젝트
+    public GameObject turnPanel, turnNumber; // 해당 오브젝트는 기본 비활성화 상태로, 유니티 inspector에서 직접 할당
+
     // 주사위 결과
     public int diceResult;
+
+    // GameManager와의 순차 실행을 위한 Event
+    public static event Action InitializeUIEvent; // UI 초기화 후 GameManager 호출
+    public static event Action UpdateUIEvent; // UI 갱신 후 GameManager 호출
+
+    void OnEnable() 
+    {
+        // GameManager 스크립트의 이벤트 구독
+        // GameManager.PlayerMoveEvent += ; 
+    }
+
+    void OnDisable() 
+    {
+        // GameManager 스크립트의 이벤트 구독 해제
+        // GameManager.PlayerMoveEvent += ;  
+    }
 
     public void InitializeUI()
     {
@@ -29,6 +49,13 @@ public class UIManager : MonoBehaviour
         p2NameText.text = $"플레이어 : {GameManager.Instance.game.players[1].playerName}";
         GameManager.Instance.game.players[1].money = 10000;
         p2MoneyText.text = $"보유현금 : {GameManager.Instance.game.players[1].money}";
+
+        // 게임 시작에 따라 턴 정보 표시
+        turnPanel.SetActive(true);
+        turnNumber.SetActive(true);
+
+        // 초기화 완료되어 턴:1 을 실행하기 위한 이벤트 발생
+        InitializeUIEvent?.Invoke();
     }
 
     public void UpdateUI()
