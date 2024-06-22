@@ -2,16 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro; // TMP UI를 사용하기 위해 추가
 
 public class UIManager : MonoBehaviour
 {
-    public string currentPlayerInfo;
+    // PlayerInfoBG를 참조하는 오브젝트
+    public GameObject player1InfoBG, player2InfoBG;
+    public TextMeshProUGUI p1NameText, p2NameText, p1MoneyText, p2MoneyText;
+    // 주사위 결과
     public int diceResult;
-    public GameObject board;
 
     public void InitializeUI()
     {
-        // add Initialize UI
+        // 플레이어 UI 정보 가져오기
+        player1InfoBG = GameObject.Find("Player1InfoBG");
+        p1NameText = player1InfoBG.transform.Find("Name").GetComponent<TextMeshProUGUI>();
+        p1MoneyText = player1InfoBG.transform.Find("Money").GetComponent<TextMeshProUGUI>();
+        player2InfoBG = GameObject.Find("Player2InfoBG");
+        p2NameText = player2InfoBG.transform.Find("Name").GetComponent<TextMeshProUGUI>();
+        p2MoneyText = player2InfoBG.transform.Find("Money").GetComponent<TextMeshProUGUI>();
+        
+        // 플레이어 정보 초기화 : UI text 설정, 플레이어 보유 머니 초기화
+        p1NameText.text = $"플레이어 : {GameManager.Instance.game.players[0].playerName}";
+        GameManager.Instance.game.players[0].money = 10000;
+        p1MoneyText.text = $"보유현금 : {GameManager.Instance.game.players[0].money}";
+        p2NameText.text = $"플레이어 : {GameManager.Instance.game.players[1].playerName}";
+        GameManager.Instance.game.players[1].money = 10000;
+        p2MoneyText.text = $"보유현금 : {GameManager.Instance.game.players[1].money}";
     }
 
     public void UpdateUI()
@@ -28,9 +45,9 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        currentPlayerInfo = $"Current Player : {GameManager.Instance.game.currentPlayer.playerName}";
+        // currentPlayerInfo = $"Current Player : {GameManager.Instance.game.currentPlayer.playerName}";
         diceResult = DiceNumberCheck.redDiceNumber + DiceNumberCheck.blueDiceNumber;
-        Debug.Log($"{currentPlayerInfo}의 주사위 결과는 {diceResult}.");
+        // Debug.Log($"{currentPlayerInfo}의 주사위 결과는 {diceResult}.");
         // 이하 UI 업데이트 로직 추가
     }
 
