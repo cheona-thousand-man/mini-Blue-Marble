@@ -6,7 +6,7 @@ using UnityEngine;
 public class blueDiceRoll : MonoBehaviour
 {
     public static Rigidbody rbBlue;
-    public static Vector3 blueDiceVelocity;
+    // public static Vector3 blueDiceVelocity;
 
     // 주사위 굴리면 굴리기 기능 비활성화 하는 이벤트
     public static event Action BlueDiceRollEvent;

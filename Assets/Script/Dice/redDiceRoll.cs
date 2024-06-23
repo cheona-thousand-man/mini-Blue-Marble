@@ -6,7 +6,7 @@ using System;
 public class redDiceRoll : MonoBehaviour
 {
     public static Rigidbody rbRed;
-    public static Vector3 redDiceVelocity;
+    // public static Vector3 redDiceVelocity;
 
     // 주사위 굴리면 굴리기 기능 비활성화 하는 이벤트
     public static event Action RedDiceRollEvent;

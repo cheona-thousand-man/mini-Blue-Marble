@@ -1,85 +1,90 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class DiceNumberCheck : MonoBehaviour
 {
-    Vector3 redDiceVelocity, blueDiceVelocity;
+    // Vector3 redDiceVelocity, blueDiceVelocity;
     public static int redDiceNumber = 0;
     public static int blueDiceNumber = 0;
 
     // 숫자 확인이 끝났음을 알리는 이벤트 처리
     public static event Action DiceNumberCheckEvent;
 
-    void Update() // 주사위 이벤트에 따라 DiceRoll 스크립트가 비활성화 되므로, 주사위 벡터는 여기서 계산
+    // 주사위의 방향 벡터를 통해 면의 숫자를 지정
+    public static Vector3[] diceDirectionList = new Vector3[]
     {
-        redDiceRoll.redDiceVelocity = redDiceRoll.rbRed.velocity;
-        blueDiceRoll.blueDiceVelocity = blueDiceRoll.rbBlue.velocity;
+        new Vector3(0, 0, 1), // 1면
+        new Vector3(0, 1, 0), // 2면
+        new Vector3(-1, 0, 0), // 3면
+        new Vector3(1, 0, 0), // 4면
+        new Vector3(0, -1, 0), // 5면
+        new Vector3(0, 0, -1) // 6면
+    };
+
+    // 주사위 면 중에서 가장 그럴싸한 숫자를 파악(Vector 각이 가장 작은 면)
+    public static int GetDiceNumberByDirection(Vector3 diceDirection)
+    {
+        float minAngle = Mathf.Infinity; // 양의 무한대로 초기값 설정
+        int resultNumber = 0;
+
+        for (int i = 0; i < diceDirectionList.Length; i++)
+        {
+            Vector3 direction = diceDirectionList[i];
+            float angle = Vector3.Angle(diceDirection, direction);
+
+            if (angle < minAngle)
+            {
+                minAngle = angle;
+                resultNumber = i + 1; // 배열은 0부터 시작하므로, 1면은 배열 인덱스가 0
+            }
+        }
+        return resultNumber;
     }
 
-    void FixedUpdate() 
+    // 주사위 정지 여부를 판단
+    public static bool IsDiceStopped(Rigidbody rb)
     {
-        redDiceVelocity = redDiceRoll.redDiceVelocity;
-        blueDiceVelocity = blueDiceRoll.blueDiceVelocity;
+        Vector3 angularVelocity = rb.angularVelocity;
+        float angularVelocityThreshold = 0f; // 각도 변화량 임계값
+
+        for (int i = 0; i < 3; i++) // x, y, z축에 대해 3개의 변위각을 가지므로 3번 비교
+        {
+            if (Mathf.Abs(angularVelocity[i]) > angularVelocityThreshold)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     void OnTriggerStay(Collider other) 
     {
         //redDice number check
-        if (other.gameObject.tag == "RedDice" && redDiceVelocity.x == 0f && redDiceVelocity.y == 0f && redDiceVelocity.z == 0f)
+        if (other.gameObject.tag == "RedDice")
         {
-            switch (other.gameObject.name)
+            if (IsDiceStopped(redDiceRoll.rbRed))
             {
-                case "1" :
-                    redDiceNumber = 1;
-                    break;
-                case "2" :
-                    redDiceNumber = 2;
-                    break;
-                case "3" :
-                    redDiceNumber = 3;
-                    break;
-                case "4" :
-                    redDiceNumber = 4;
-                    break;
-                case "5" :
-                    redDiceNumber = 5;
-                    break;
-                case "6" :
-                    redDiceNumber = 6;
-                    break;
+                redDiceNumber = GetDiceNumberByDirection(redDiceRoll.rbRed.transform.up); // 윗면을 보는 Vector와 가까운 주사위 면 비교
+                Debug.Log($"RedDice 숫자 : {redDiceNumber}");
             }
         }
+
         //blueDice number check
-        if (other.gameObject.tag == "BlueDice" && blueDiceVelocity.x == 0f && blueDiceVelocity.y == 0f && blueDiceVelocity.z == 0f)
+        if (other.gameObject.tag == "BlueDice")
         {
-            switch (other.gameObject.name)
+            if (IsDiceStopped(blueDiceRoll.rbBlue))
             {
-                case "1" :
-                    blueDiceNumber = 1;
-                    break;
-                case "2" :
-                    blueDiceNumber = 2;
-                    break;
-                case "3" :
-                    blueDiceNumber = 3;
-                    break;
-                case "4" :
-                    blueDiceNumber = 4;
-                    break;
-                case "5" :
-                    blueDiceNumber = 5;
-                    break;
-                case "6" :
-                    blueDiceNumber = 6;
-                    break;
+                blueDiceNumber = GetDiceNumberByDirection(blueDiceRoll.rbBlue.transform.up); // 윗면을 보는 Vector와 가까운 주사위 면 비교
+                Debug.Log($"BlueDice 숫자 : {blueDiceNumber}");
             }
         }
+
         Debug.Log("주사위 숫자 점검중입니다.");
-        Debug.Log($"RedDice Veolcity : {redDiceVelocity}, BlueDice Velocity : {blueDiceVelocity}");
         // 숫자 점검이 끝난 경우 = Red/Blue 주사위 모두 운동량이 0일 때!!
-        if (redDiceVelocity.x == 0f && redDiceVelocity.y == 0f && redDiceVelocity.z == 0f && blueDiceVelocity.x == 0f && blueDiceVelocity.y == 0f && blueDiceVelocity.z == 0f)
+        if (IsDiceStopped(redDiceRoll.rbRed) && IsDiceStopped(blueDiceRoll.rbBlue))
         {
             Debug.Log("주사위가 모두 멈췄습니다.");
             Debug.Log($"주사위 숫자 : {redDiceNumber}, {blueDiceNumber}");

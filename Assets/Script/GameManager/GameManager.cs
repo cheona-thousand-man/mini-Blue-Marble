@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     public UIManager uiManager;
 
     // GameManage 위한 GameObject 관리 
-    public GameObject rollButtonBG, rollButton; // 주사위 관련된 오브젝트, Button의 경우 Inspector에서 직접 할당
+    public GameObject rollButtonBG, rollButton, reRollUI; // 주사위 관련된 오브젝트, Button의 경우 Inspector에서 직접 할당
     public GameObject redDice, blueDice, diceNumberCheck; // 주사위 관련된 오브젝트2
     public bool redDiceRollChecked = false;
     public bool blueDiceRollChecked = false;
@@ -90,6 +90,11 @@ public class GameManager : MonoBehaviour
     {
         if (!diceOkay) // 4.주사위 숫자 결과(3번)가 이상없을 때까지 던지기 반복
         {
+            if (reRollUI.activeSelf) // reRollUI 비활성화 하기
+            {
+                reRollUI.SetActive(false);
+            }
+
             // 1. 주사위 굴리기
             if (diceNumberCheck.GetComponent<Collider>().enabled) // 주사위 숫자 체크를 비활성화 = 트리거 비활성화 
             {
@@ -178,12 +183,12 @@ public class GameManager : MonoBehaviour
             diceOkay = true;
             return; // 주사위가 정상이므로 종료
         }
+
         // 주사위 값이 비정상일 경우 : 다시 주사위 굴려야 함을 알림UI
-        if (!rollButtonBG.activeSelf) // rollButtonBG가 비활성화면 실행
+        if (!reRollUI.activeSelf) // reRollUI가 비활성화면 실행
         {
-            rollButtonBG.SetActive(true); // 주사위 굴리기 UI 활성화
-        } 
-        rollButton.GetComponent<Text>().text = "주사위가 잘못 던져 졌습니다\n다시 던지세요"; // 주사위 다시굴리기 안내
-        Invoke("HandleTurn", 2.0f); // 해당 문구를 2초간 보여줌
+            reRollUI.SetActive(true);
+        }
+        Invoke("HandleTurn", 2.0f); // 해당 문구를 2초간 보여주고 HandleTurn 호출
     }
 }
