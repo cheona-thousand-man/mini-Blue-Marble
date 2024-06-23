@@ -13,9 +13,6 @@ public class UIManager : MonoBehaviour
     // Turn 정보를 저장하는 오브젝트
     public GameObject turnPanel, turnNumber; // 해당 오브젝트는 기본 비활성화 상태로, 유니티 inspector에서 직접 할당
 
-    // 주사위 결과
-    public int diceResult;
-
     // GameManager와의 순차 실행을 위한 Event
     public static event Action InitializeUIEvent; // UI 초기화 후 GameManager 호출
     public static event Action UpdateUIEvent; // UI 갱신 후 GameManager 호출
@@ -71,11 +68,11 @@ public class UIManager : MonoBehaviour
             Debug.LogError("Current player is null.");
             return;
         }
-
-        // currentPlayerInfo = $"Current Player : {GameManager.Instance.game.currentPlayer.playerName}";
-        diceResult = DiceNumberCheck.redDiceNumber + DiceNumberCheck.blueDiceNumber;
-        // Debug.Log($"{currentPlayerInfo}의 주사위 결과는 {diceResult}.");
         // 이하 UI 업데이트 로직 추가
+
+        // 플레이어 정보 업데이트 : 플레이어 보유 머니
+        p1MoneyText.text = $"보유현금 : {GameManager.Instance.game.players[0].money}";
+        p2MoneyText.text = $"보유현금 : {GameManager.Instance.game.players[1].money}";
     }
 
     public void ShowMessage(string message)

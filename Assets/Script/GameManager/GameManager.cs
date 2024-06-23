@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public bool diceOkay = false; // 주사위 숫자를 확인하여 이상이 있을 경우 재시도
     public int targetTileIndex, remainIndex, movedIndex; // 플레이어 목적지 타일, 아직 남은 수, 이동한 수
     public bool moveYet = false; // 플레이어 이동처리 시작하였는지 확인
+    public GameObject getSalaryUI; // Tile 관련된 오브젝트, Inspector에서 직접 할당
 
     // Game&UIMnager와 순차 실행을 위한 이벤트
     public static event Action TurnEndEvent; // 턴이 종료되면 다음 턴 진행
@@ -146,6 +147,7 @@ public class GameManager : MonoBehaviour
         }
 
         // 타일 이벤트 처리
+        ProcessTileEvent(targetTileIndex, game.currentPlayer);
 
         // 턴 종료
         // game.NextTurn();
@@ -229,6 +231,12 @@ public class GameManager : MonoBehaviour
         --remainIndex;
         Debug.Log($"이동해야 할 Tile 수 : {remainIndex}");
 
+        // 플레이어가 1칸 이동한 이후부터 Colldier 활성화
+        if (!game.currentPlayer.GetComponent<CapsuleCollider>().enabled)
+        {
+            game.currentPlayer.GetComponent<CapsuleCollider>().enabled = true;
+        }
+
         // 모서리 Tile일 경우 플레이어 방향 90도 회전
             switch (game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + movedIndex) % game.tiles.Count].name)
             {
@@ -248,6 +256,18 @@ public class GameManager : MonoBehaviour
                     break;
             }
 
+        // 플레이어가 시작타일을 지날 경우 월급 500 지급
+        if (game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + movedIndex) % game.tiles.Count].name == "StartLand")
+        {
+            game.currentPlayer.money += 500;
+            uiManager.UpdateUI(); // UI에 변경된 Money 반영
+            if (!getSalaryUI.activeSelf) // getSalaryUI가 비활성화면 실행
+            {
+                getSalaryUI.SetActive(true); // 월급 보상 UI 활성화
+            } 
+            Invoke("getSalaryUIoff", 2.0f);
+        }
+
         // 플레이어 이동 처리
         if (remainIndex > 0)
         {
@@ -255,9 +275,15 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // 목표지점에 도달하여 종료
+            // 목표지점에 도달하여 플레이어 위치 타일 갱신
             game.currentPlayer.playerNowTile = game.tiles[targetTileIndex];
             Debug.Log($"이동을 마치고 목표지점 {game.tiles[targetTileIndex].name}에 도착했습니다.");
+
+            // 목표 지점에 도착하여 플레이어 Collider 비활성화
+            if (game.currentPlayer.GetComponent<CapsuleCollider>().enabled)
+            {
+                game.currentPlayer.GetComponent<CapsuleCollider>().enabled = false;
+            }
 
             // 이동이 종료되어 애니메이션 복구(run->idle)
             game.currentPlayer.isMoving = false;
@@ -266,5 +292,13 @@ public class GameManager : MonoBehaviour
             Invoke("HandleTurn", 0f); // 이동 종료하여 바로 HandleTurn 호출
             return; 
         }
+    }
+
+    public void getSalaryUIoff()
+    {
+        if (getSalaryUI.activeSelf) // getSalaryUI가 활성화면 실행
+        {
+            getSalaryUI.SetActive(false); // 월급 보상 UI 비활성화
+        } 
     }
 }

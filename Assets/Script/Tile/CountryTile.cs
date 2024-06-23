@@ -20,7 +20,7 @@ public class CountryTile : Tile
 
     public override void OnLand(Player player)
     {
-        base.OnLand(player);
+        // base.OnLand(player); // Tile 클래스에서 별도로 구현된 기능 없음
         if (owner == null)
         {
             Debug.Log($"{player.playerName} landed on unowned Country Tile and can purchase it for ${purchaseCost}.");

@@ -273,6 +273,7 @@ public class Game : MonoBehaviour
         foreach (Player player in activePlayers)
         {
             players.Add(player);
+            player.GetComponent<CapsuleCollider>().enabled = false; // 캐릭터 초기값은 충돌감지 x
         }
     }
 }

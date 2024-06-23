@@ -15,7 +15,7 @@ public class GoldenKeyTile : Tile
 
     public override void OnLand(Player player)
     {
-        base.OnLand(player);
+        // base.OnLand(player); // Tile 클래스에서 별도로 구현된 기능 없음
         Debug.Log($"{player.playerName} landed on Golden Key Tile and drew a golden key.");
         player.DrawGoldenKey(); // 황금 열쇠 이벤트 처리 
     }

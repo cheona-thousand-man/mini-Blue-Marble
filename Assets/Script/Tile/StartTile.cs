@@ -15,7 +15,7 @@ public class StartTile : Tile
 
     public override void OnLand(Player player)
     {
-        base.OnLand(player);
-        player.money += 500; // 출발지점 보상
+        // base.OnLand(player); // Tile 클래스에서 별도로 구현된 기능 없음
+        // player.money += 500; // 출발지점 보상은 GameManager에서 지급
     }
 }
