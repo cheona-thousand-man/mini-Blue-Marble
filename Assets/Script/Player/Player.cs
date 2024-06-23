@@ -95,5 +95,6 @@ public class Player : MonoBehaviour
     public void DrawGoldenKey()
     {
         Debug.Log($"{playerName} drew a golden key!");
+        money += 1000; // 돈 지급 UI는 GameManager에서 처리
     }
 }

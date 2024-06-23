@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     public bool diceOkay = false; // 주사위 숫자를 확인하여 이상이 있을 경우 재시도
     public int targetTileIndex, remainIndex, movedIndex; // 플레이어 목적지 타일, 아직 남은 수, 이동한 수
     public bool moveYet = false; // 플레이어 이동처리 시작하였는지 확인
-    public GameObject getSalaryUI; // Tile 관련된 오브젝트, Inspector에서 직접 할당
+    public GameObject getSalaryUI, goldenCardUI; // Tile 관련된 오브젝트, Inspector에서 직접 할당
 
     // Game&UIMnager와 순차 실행을 위한 이벤트
     public static event Action TurnEndEvent; // 턴이 종료되면 다음 턴 진행
@@ -285,6 +285,19 @@ public class GameManager : MonoBehaviour
                 game.currentPlayer.GetComponent<CapsuleCollider>().enabled = false;
             }
 
+            // 목표 지점이 GoldenKey이면 UI 실행
+            if (game.currentPlayer.playerNowTile.name == "GoldenKeyLine1" || 
+            game.currentPlayer.playerNowTile.name == "GoldenKeyLine2" ||
+            game.currentPlayer.playerNowTile.name == "GoldenKeyLine3")
+            {
+                uiManager.UpdateUI(); // 지급된 보상 반영
+                if (!goldenCardUI.activeSelf) // goldenCardUI가 비활성화면 실행
+                {
+                    goldenCardUI.SetActive(true); // 황금카드 UI 활성화
+                } 
+                Invoke("GoldenCardUIoff", 2.0f);
+             }
+
             // 이동이 종료되어 애니메이션 복구(run->idle)
             game.currentPlayer.isMoving = false;
             game.currentPlayer.animator.SetBool("isRunning", false);
@@ -299,6 +312,15 @@ public class GameManager : MonoBehaviour
         if (getSalaryUI.activeSelf) // getSalaryUI가 활성화면 실행
         {
             getSalaryUI.SetActive(false); // 월급 보상 UI 비활성화
+        } 
+    }
+
+    public void GoldenCardUIoff()
+    {
+        // 안내 UI 끄기
+        if (goldenCardUI.activeSelf) // goldenCardUI가 활성화면 실행
+        {
+            goldenCardUI.SetActive(false); // 황금카드 UI 비활성화
         } 
     }
 }
