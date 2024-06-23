@@ -34,7 +34,7 @@ public class redDiceRoll : MonoBehaviour
         transform.position = new Vector3(-8, 2, 8); // 던지는 위치 조정
         transform.rotation = Quaternion.identity; // 던지는 면 조정 : 주사위에 고정된 던지는 힘이 틀어지는 걸 방지
         // transform.rotation = Quaternion.Euler(10f, 0f, 10f); // x축에 대해 10도 회전 추가
-        rbRed.AddForce(transform.up * UnityEngine.Random.Range(500, 2500));
+        rbRed.AddForce(transform.up * UnityEngine.Random.Range(1500, 2500));
         rbRed.AddTorque (dirX, dirY, dirZ);
         DiceNumberCheck.redDiceNumber = 0;
 
