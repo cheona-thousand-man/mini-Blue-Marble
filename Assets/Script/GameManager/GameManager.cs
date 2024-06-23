@@ -82,20 +82,16 @@ public class GameManager : MonoBehaviour
 
     public void HandleTurn()
     {
-        // 주사위 굴리기
-        while(!diceOkay)
+
+        // 1. 주사위 굴리기
+        if (!rollButtonBG.activeSelf) // rollButtonBG가 비활성화면 실행
         {
-            // 1. 주사위 굴리기
-            if (GameObject.Find("rollButtonBG") == null)
-            {
-                rollButtonBG.SetActive(true); // 주사위 굴리기 UI 활성화
-            }
-            redDice.GetComponent<redDiceRoll>().enabled = true; // 주사위 굴리기 작용 활성화
-            blueDice.GetComponent<blueDiceRoll>().enabled = true; 
-            rollButton.GetComponent<Text>().text = "주사위를 굴리세요\n(Click or Space)"; // 주사위 굴리기 안내
-            // 2. 주사위 굴린 후 굴리기 비활성화 : DiceRollEvent를 받아서 굴리지 못하게 비활성화
-            // 3. 주사위 값을 가져와서 이상유무 점검 : DiceNumberCheckEvent를 받아서 숫자가 정상이면 주사위 굴리기 종료
-        }
+            rollButtonBG.SetActive(true); // 주사위 굴리기 UI 활성화
+        } 
+        redDice.GetComponent<redDiceRoll>().enabled = true; // 주사위 굴리기 작용 활성화
+        blueDice.GetComponent<blueDiceRoll>().enabled = true; 
+        rollButton.GetComponent<Text>().text = "주사위를 굴리세요\n(Click or Space)"; // 주사위 굴리기 안내
+        // 2. 주사위 굴린 후 굴리기 비활성화 : DiceRollEvent를 받아서 굴리지 못하게 비활성화
         
         
 
@@ -120,24 +116,5 @@ public class GameManager : MonoBehaviour
         rollButtonBG.SetActive(false); // 주사위 굴리기 UI 비활성화
         redDice.GetComponent<redDiceRoll>().enabled = false; // 주사위 굴리기 작용 비활성화
         blueDice.GetComponent<blueDiceRoll>().enabled = false;
-    }
-
-    public void DiceNumberOkay()
-    {
-        if(DiceNumberCheck.redDiceNumber != 0 && DiceNumberCheck.blueDiceNumber != 0)
-        {
-            diceOkay = true;
-        }
-        else
-        {
-            rollButtonBG.SetActive(true); // 주사위 굴리기 UI 활성화
-            rollButton.GetComponent<Text>().text = "주사위가 잘못 굴려졌습니다\n다시 굴리셔야 합니다"; // 주사위 다시 굴리기 안내
-            Invoke("TimeStop", 1.0f);
-        }
-    }
-
-    public void TimeStop()
-    {
-        Debug.Log("시간을 잠시 멈췄습니다.");
     }
 }

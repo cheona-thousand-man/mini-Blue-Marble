@@ -1,7 +1,7 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class redDiceRoll : MonoBehaviour
 {
@@ -11,7 +11,7 @@ public class redDiceRoll : MonoBehaviour
     // 주사위 굴리면 굴리기 기능 비활성화 하는 이벤트
     public static event Action DiceRollEvent;
 
-    // Start is called before the first fra me update
+    // Start is called before the first frame update
     void Start()
     {
         rbRed = GetComponent<Rigidbody>();
@@ -30,7 +30,7 @@ public class redDiceRoll : MonoBehaviour
 
     public void RollDice()
     {
-        float dirX = UnityEngine.Random.Range(0, 150);
+        float dirX = UnityEngine.Random.Range(0, 150); // Random.Range()는 C# System이 아닌 UnityEngine의 함수
         float dirY = UnityEngine.Random.Range(0, 150);
         float dirZ = UnityEngine.Random.Range(0, 150);
         transform.position = new Vector3(-8, 2, 8); // 던지는 위치 조정
