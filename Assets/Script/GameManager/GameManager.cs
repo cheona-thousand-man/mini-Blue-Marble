@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     // GameManage 위한 GameObject 관리 
     public GameObject rollButtonBG, rollButton; // 주사위 관련된 오브젝트, Button의 경우 Inspector에서 직접 할당
     public GameObject redDice, blueDice; // 주사위 관련된 오브젝트2
+    public bool redDiceRollChecked = false;
+    public bool blueDiceRollChecked = false;
     public bool diceOkay = false; // 주사위 숫자를 확인하여 이상이 있을 경우 재시도
 
     // Game&UIMnager와 순차 실행을 위한 이벤트
@@ -44,7 +46,8 @@ public class GameManager : MonoBehaviour
         UIManager.InitializeUIEvent += HandleTurn;
         // UIManager.UpdateUIEvent += ; 
         // DiceRoll 스트립트의 이벤트 구독
-        redDiceRoll.DiceRollEvent += DiceRollLock;
+        redDiceRoll.RedDiceRollEvent += RedDiceRollCheck;
+        blueDiceRoll.BlueDiceRollEvent += BlueDiceRollCheck;
         // DiceNumberCheck 스트립트의 이벤트 구독
         // DiceNumberCheck.DiceNumberCheckEvent += DiceNumberOkay;
     }
@@ -57,7 +60,8 @@ public class GameManager : MonoBehaviour
         UIManager.InitializeUIEvent -= HandleTurn;
         // UIManager.UpdateUIEvent -= ; 
         // DiceRoll 스트립트의 이벤트 구독 해제
-        redDiceRoll.DiceRollEvent -= DiceRollLock;
+        redDiceRoll.RedDiceRollEvent -= RedDiceRollCheck;
+        blueDiceRoll.BlueDiceRollEvent -= BlueDiceRollCheck;
         // DiceNumberCheck 스트립트의 이벤트 구독
         // DiceNumberCheck.DiceNumberCheckEvent -= DiceNumberOkay;
     }
@@ -90,7 +94,7 @@ public class GameManager : MonoBehaviour
         } 
         redDice.GetComponent<redDiceRoll>().enabled = true; // 주사위 굴리기 작용 활성화
         blueDice.GetComponent<blueDiceRoll>().enabled = true; 
-        rollButton.GetComponent<Text>().text = "주사위를 굴리세요\n(Click or Space)"; // 주사위 굴리기 안내
+        rollButton.GetComponent<Text>().text = "주사위를 굴리세요\n(Click)"; // 주사위 굴리기 안내
         // 2. 주사위 굴린 후 굴리기 비활성화 : DiceRollEvent를 받아서 굴리지 못하게 비활성화
         
         
@@ -111,9 +115,34 @@ public class GameManager : MonoBehaviour
         uiManager.UpdateUI();
     }
 
+    public void RedDiceRollCheck()
+    {
+        redDiceRollChecked = true;
+        TryExecuteDiceRollLock();
+    }
+
+    public void BlueDiceRollCheck()
+    {
+        blueDiceRollChecked = true;
+        TryExecuteDiceRollLock();
+    }
+
+    public void TryExecuteDiceRollLock()
+    {
+        if (redDiceRollChecked && blueDiceRollChecked)
+        {
+            DiceRollLock();
+            redDiceRollChecked = false;
+            blueDiceRollChecked = false;
+        }
+    }
+
     public void DiceRollLock()
     {
-        rollButtonBG.SetActive(false); // 주사위 굴리기 UI 비활성화
+        if (rollButtonBG.activeSelf) // rollButtonBG가 활성화면 실행
+        {
+            rollButtonBG.SetActive(false); // 주사위 굴리기 UI 비활성화
+        }     
         redDice.GetComponent<redDiceRoll>().enabled = false; // 주사위 굴리기 작용 비활성화
         blueDice.GetComponent<blueDiceRoll>().enabled = false;
     }

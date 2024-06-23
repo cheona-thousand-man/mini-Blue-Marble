@@ -9,7 +9,7 @@ public class redDiceRoll : MonoBehaviour
     public static Vector3 redDiceVelocity;
 
     // 주사위 굴리면 굴리기 기능 비활성화 하는 이벤트
-    public static event Action DiceRollEvent;
+    public static event Action RedDiceRollEvent;
 
     // Start is called before the first frame update
     void Start()
@@ -22,10 +22,10 @@ public class redDiceRoll : MonoBehaviour
     {
         redDiceVelocity = rbRed.velocity;
 
-        if (Input.GetKeyDown (KeyCode.Space))
-        {
-            RollDice();
-        }
+        // if (Input.GetKeyDown (KeyCode.Space))
+        // {
+        //     RollDice();
+        // }
     }
 
     public void RollDice()
@@ -41,6 +41,6 @@ public class redDiceRoll : MonoBehaviour
         DiceNumberCheck.redDiceNumber = 0;
 
         // 주사위 굴렸음을 알려주는 이벤트 발생
-        DiceRollEvent?.Invoke();
+        RedDiceRollEvent?.Invoke();
     }
 }
