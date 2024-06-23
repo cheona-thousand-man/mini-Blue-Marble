@@ -5,14 +5,13 @@ using System;
 
 public class redDiceRoll : MonoBehaviour
 {
-    static Rigidbody rbRed;
+    public static Rigidbody rbRed;
     public static Vector3 redDiceVelocity;
 
     // 주사위 굴리면 굴리기 기능 비활성화 하는 이벤트
     public static event Action RedDiceRollEvent;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         rbRed = GetComponent<Rigidbody>();
     }
@@ -20,8 +19,7 @@ public class redDiceRoll : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        redDiceVelocity = rbRed.velocity;
-
+        // redDiceVelocity = rbRed.velocity; // 주사위 이벤트에 따라 해당 스크립트는 정지 되기 때문에, DiceNumberCheck에서 수행
         // if (Input.GetKeyDown (KeyCode.Space))
         // {
         //     RollDice();

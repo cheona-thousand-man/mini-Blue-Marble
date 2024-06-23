@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 
     // GameManage 위한 GameObject 관리 
     public GameObject rollButtonBG, rollButton; // 주사위 관련된 오브젝트, Button의 경우 Inspector에서 직접 할당
-    public GameObject redDice, blueDice; // 주사위 관련된 오브젝트2
+    public GameObject redDice, blueDice, diceNumberCheck; // 주사위 관련된 오브젝트2
     public bool redDiceRollChecked = false;
     public bool blueDiceRollChecked = false;
     public bool diceOkay = false; // 주사위 숫자를 확인하여 이상이 있을 경우 재시도
@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
         redDiceRoll.RedDiceRollEvent += RedDiceRollCheck;
         blueDiceRoll.BlueDiceRollEvent += BlueDiceRollCheck;
         // DiceNumberCheck 스트립트의 이벤트 구독
-        // DiceNumberCheck.DiceNumberCheckEvent += DiceNumberOkay;
+        DiceNumberCheck.DiceNumberCheckEvent += DiceNumberOkay;
     }
 
     void OnDisable() 
@@ -63,7 +63,7 @@ public class GameManager : MonoBehaviour
         redDiceRoll.RedDiceRollEvent -= RedDiceRollCheck;
         blueDiceRoll.BlueDiceRollEvent -= BlueDiceRollCheck;
         // DiceNumberCheck 스트립트의 이벤트 구독
-        // DiceNumberCheck.DiceNumberCheckEvent -= DiceNumberOkay;
+        DiceNumberCheck.DiceNumberCheckEvent -= DiceNumberOkay;
     }
 
     void InitializeGame()
@@ -79,6 +79,8 @@ public class GameManager : MonoBehaviour
         // 주사위 오브젝트 가져오기
         redDice = GameObject.Find("RedDice");
         blueDice = GameObject.Find("BlueDice");
+        // 주사위 숫자 점검 오브젝트 가져오기
+        diceNumberCheck = GameObject.Find("BottomWall");
         // 게임 시작 처리
         game.StartGame();
         uiManager.InitializeUI();
@@ -86,16 +88,25 @@ public class GameManager : MonoBehaviour
 
     public void HandleTurn()
     {
-
-        // 1. 주사위 굴리기
-        if (!rollButtonBG.activeSelf) // rollButtonBG가 비활성화면 실행
+        if (!diceOkay) // 4.주사위 숫자 결과(3번)가 이상없을 때까지 던지기 반복
         {
-            rollButtonBG.SetActive(true); // 주사위 굴리기 UI 활성화
-        } 
-        redDice.GetComponent<redDiceRoll>().enabled = true; // 주사위 굴리기 작용 활성화
-        blueDice.GetComponent<blueDiceRoll>().enabled = true; 
-        rollButton.GetComponent<Text>().text = "주사위를 굴리세요\n(Click)"; // 주사위 굴리기 안내
-        // 2. 주사위 굴린 후 굴리기 비활성화 : DiceRollEvent를 받아서 굴리지 못하게 비활성화
+            // 1. 주사위 굴리기
+            if (diceNumberCheck.GetComponent<Collider>().enabled) // 주사위 숫자 체크를 비활성화 = 트리거 비활성화 
+            {
+                diceNumberCheck.GetComponent<Collider>().enabled = false;
+            }
+            if (!rollButtonBG.activeSelf) // rollButtonBG가 비활성화면 실행
+            {
+                rollButtonBG.SetActive(true); // 주사위 굴리기 UI 활성화
+            } 
+            redDice.GetComponent<redDiceRoll>().enabled = true; // 주사위 굴리기 작용 활성화
+            blueDice.GetComponent<blueDiceRoll>().enabled = true; 
+            rollButton.GetComponent<Text>().text = "주사위를 굴리세요\n(Click)"; // 주사위 굴리기 안내
+            // 2. 주사위 굴린 후 굴리기 비활성화 : Red/BlueDiceRoll.Red/BlueDiceRollEvent를 받아서 굴리지 못하게 비활성화
+            // 3. 주사위 숫자를 받아와서 이상 없는지 검사 : DiceNumberCheck.DiceNumberCheckEvent를 받아서 검사 실시
+            return; // 반복 실행되는 것을 고려해서 함수 종료
+        }
+        
         
         
 
@@ -145,5 +156,34 @@ public class GameManager : MonoBehaviour
         }     
         redDice.GetComponent<redDiceRoll>().enabled = false; // 주사위 굴리기 작용 비활성화
         blueDice.GetComponent<blueDiceRoll>().enabled = false;
+
+        // 주사위가 굴려 졌으므로, 주사위 숫자 체크를 활성화
+        if (!diceNumberCheck.GetComponent<Collider>().enabled) // 주사위 숫자 체크를 활성화
+        {
+            diceNumberCheck.GetComponent<Collider>().enabled = true;
+        }
+    }
+
+    public void DiceNumberOkay()
+    {
+        // 주사위 숫자가 모두 확인 되었으므로, 주사위 숫자 체크를 비활성화 = 트리거 비활성화 
+        if (diceNumberCheck.GetComponent<Collider>().enabled)
+        {
+            diceNumberCheck.GetComponent<Collider>().enabled = false;
+        }
+        // 확인된 숫자 점검
+        if (DiceNumberCheck.redDiceNumber != 0 && DiceNumberCheck.blueDiceNumber != 0)
+        {
+            Debug.Log("주사위 숫자가 정상적으로 감지 되었습니다.");
+            diceOkay = true;
+            return; // 주사위가 정상이므로 종료
+        }
+        // 주사위 값이 비정상일 경우 : 다시 주사위 굴려야 함을 알림UI
+        if (!rollButtonBG.activeSelf) // rollButtonBG가 비활성화면 실행
+        {
+            rollButtonBG.SetActive(true); // 주사위 굴리기 UI 활성화
+        } 
+        rollButton.GetComponent<Text>().text = "주사위가 잘못 던져 졌습니다\n다시 던지세요"; // 주사위 다시굴리기 안내
+        Invoke("HandleTurn", 2.0f); // 해당 문구를 2초간 보여줌
     }
 }

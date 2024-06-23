@@ -5,14 +5,13 @@ using UnityEngine;
 
 public class blueDiceRoll : MonoBehaviour
 {
-    static Rigidbody rbBlue;
+    public static Rigidbody rbBlue;
     public static Vector3 blueDiceVelocity;
 
     // 주사위 굴리면 굴리기 기능 비활성화 하는 이벤트
     public static event Action BlueDiceRollEvent;
 
-    // Start is called before the first fra me update
-    void Start()
+    void Awake()
     {
         rbBlue = GetComponent<Rigidbody>();
     }
@@ -20,8 +19,7 @@ public class blueDiceRoll : MonoBehaviour
     // Update is called once per frame
     void Update()
     {  
-        blueDiceVelocity = rbBlue.velocity;
-
+        // blueDiceVelocity = rbBlue.velocity; // 주사위 이벤트에 따라 해당 스크립트는 정지 되기 때문에, DiceNumberCheck에서 수행
         // if (Input.GetKeyDown (KeyCode.Space))
         // {
         //     RollDice();
