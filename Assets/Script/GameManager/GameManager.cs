@@ -20,9 +20,10 @@ public class GameManager : MonoBehaviour
     public bool redDiceRollChecked = false;
     public bool blueDiceRollChecked = false;
     public bool diceOkay = false; // 주사위 숫자를 확인하여 이상이 있을 경우 재시도
+    public int targetTileIndex, remainIndex, movedIndex; // 플레이어 목적지 타일, 아직 남은 수, 이동한 수
+    public bool moveYet = false; // 플레이어 이동처리 시작하였는지 확인
 
     // Game&UIMnager와 순차 실행을 위한 이벤트
-    public static event Action PlayerMoveEvent; // 플레이어가 이동하는 이벤트
     public static event Action TurnEndEvent; // 턴이 종료되면 다음 턴 진행
 
     void Awake()
@@ -50,6 +51,8 @@ public class GameManager : MonoBehaviour
         blueDiceRoll.BlueDiceRollEvent += BlueDiceRollCheck;
         // DiceNumberCheck 스트립트의 이벤트 구독
         DiceNumberCheck.DiceNumberCheckEvent += DiceNumberOkay;
+        // Player 스크립트의 이벤트 구독
+        Player.PlayerMoveEndEvent += PlayerMoveOneTile;
     }
 
     void OnDisable() 
@@ -62,8 +65,10 @@ public class GameManager : MonoBehaviour
         // DiceRoll 스트립트의 이벤트 구독 해제
         redDiceRoll.RedDiceRollEvent -= RedDiceRollCheck;
         blueDiceRoll.BlueDiceRollEvent -= BlueDiceRollCheck;
-        // DiceNumberCheck 스트립트의 이벤트 구독
+        // DiceNumberCheck 스트립트의 이벤트 구독 해제
         DiceNumberCheck.DiceNumberCheckEvent -= DiceNumberOkay;
+        // Player 스크립트의 이벤트 구독 해제
+        Player.PlayerMoveEndEvent -= PlayerMoveOneTile;
     }
 
     void InitializeGame()
@@ -88,6 +93,7 @@ public class GameManager : MonoBehaviour
 
     public void HandleTurn()
     {
+        // 주사위 굴리기
         if (!diceOkay) // 4.주사위 숫자 결과(3번)가 이상없을 때까지 던지기 반복
         {
             if (reRollUI.activeSelf) // reRollUI 비활성화 하기
@@ -111,17 +117,42 @@ public class GameManager : MonoBehaviour
             // 3. 주사위 숫자를 받아와서 이상 없는지 검사 : DiceNumberCheck.DiceNumberCheckEvent를 받아서 검사 실시
             return; // 반복 실행되는 것을 고려해서 함수 종료
         }
-        
-        
-        
 
         // 플레이어 이동
+        if (!moveYet) // 이동처리를 시작했는지 확인, 시작했으면 통과
+        {
+            moveYet = true;
+             // 1. 플레이어 이동 처리
+            targetTileIndex = (game.tiles.IndexOf(game.currentPlayer.playerNowTile) + DiceNumberCheck.redDiceNumber + DiceNumberCheck.blueDiceNumber) % game.tiles.Count;
+            Debug.Log($"플레이어가 이동할 Tile : {game.tiles[targetTileIndex].name}");
+            // 2-1. 이동해야 할 타일 수 계산 
+            if ((targetTileIndex - game.tiles.IndexOf(game.currentPlayer.playerNowTile)) > 0) // 이동해야 하는 타일 갯수 확인
+            {
+                remainIndex = targetTileIndex - game.tiles.IndexOf(game.currentPlayer.playerNowTile);
+            }
+            else
+            {
+                remainIndex = game.tiles.Count - game.tiles.IndexOf(game.currentPlayer.playerNowTile) + targetTileIndex;
+            }
+            movedIndex = 1; // 2-2. 이동을 확인하기 위한 초기화
+            // 2-3. 플레이어 애니메이션 전환(idle->run)
+            if (!game.currentPlayer.isMoving)
+            {
+                game.currentPlayer.isMoving = true;
+                game.currentPlayer.animator.SetBool("isRunning", true);
+            }
+            // 3. 최초로 1개 타일 이동하고, 플레이어가 이동할 때마다 PlayerMoveEndEvent를 통해 PlayerMoveOneTile()로 한칸씩 이동
+            game.currentPlayer.movePosition = game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + 1) % game.tiles.Count].transform.position;
+        }
 
         // 타일 이벤트 처리
 
         // 턴 종료
         // game.NextTurn();
         // uiManager.UpdateUI();
+
+        diceOkay = false; // 다른 플레이어를 위해 초기화
+        moveYet = false;
     }
 
     public void ProcessTileEvent(int tileIndex, Player player)
@@ -181,6 +212,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("주사위 숫자가 정상적으로 감지 되었습니다.");
             diceOkay = true;
+            Invoke("HandleTurn", 0f); // 주사위가 정상이므로 바로 HandleTurn 호출
             return; // 주사위가 정상이므로 종료
         }
 
@@ -190,5 +222,49 @@ public class GameManager : MonoBehaviour
             reRollUI.SetActive(true);
         }
         Invoke("HandleTurn", 2.0f); // 해당 문구를 2초간 보여주고 HandleTurn 호출
+    }
+
+    public void PlayerMoveOneTile()
+    {
+        --remainIndex;
+        Debug.Log($"이동해야 할 Tile 수 : {remainIndex}");
+
+        // 모서리 Tile일 경우 플레이어 방향 90도 회전
+            switch (game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + movedIndex) % game.tiles.Count].name)
+            {
+                case "Greece" :
+                    game.currentPlayer.transform.rotation *= Quaternion.Euler(0f, 90f, 0f);
+                    break;
+                case "Brazil" :
+                    game.currentPlayer.transform.rotation *= Quaternion.Euler(0f, 90f, 0f);
+                    break;
+                case "Japan" :
+                    game.currentPlayer.transform.rotation *= Quaternion.Euler(0f, 90f, 0f);
+                    break;
+                case "StartLand" :
+                    game.currentPlayer.transform.rotation *= Quaternion.Euler(0f, 90f, 0f);
+                    break;
+                default :
+                    break;
+            }
+
+        // 플레이어 이동 처리
+        if (remainIndex > 0)
+        {
+            game.currentPlayer.movePosition = game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + ++movedIndex) % game.tiles.Count].transform.position;
+        }
+        else
+        {
+            // 목표지점에 도달하여 종료
+            game.currentPlayer.playerNowTile = game.tiles[targetTileIndex];
+            Debug.Log($"이동을 마치고 목표지점 {game.tiles[targetTileIndex].name}에 도착했습니다.");
+
+            // 이동이 종료되어 애니메이션 복구(run->idle)
+            game.currentPlayer.isMoving = false;
+            game.currentPlayer.animator.SetBool("isRunning", false);
+
+            Invoke("HandleTurn", 0f); // 이동 종료하여 바로 HandleTurn 호출
+            return; 
+        }
     }
 }

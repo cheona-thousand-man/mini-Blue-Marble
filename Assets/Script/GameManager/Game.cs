@@ -77,10 +77,12 @@ public class Game : MonoBehaviour
     public void StartGame()
     {
         // 게임 초기화 로직
-        foreach (Player player in players) // 플레이어 게임 시작 머니 세팅
+        foreach (Player player in players) // 플레이어 게임 시작 머니, 시작 타일 세팅
         {
             player.money = 10000;
             Debug.Log($"플레이어 {player.playerName}의 돈이 {player.money}로 초기화되었습니다.");
+            player.playerNowTile = tiles[0];
+            Debug.Log($"플레이어 {player.playerName}의 시작 위치가 {player.playerNowTile.name}로 초기화되었습니다.");
         }
         currentPlayer = players[0]; // 첫 번째 플레이어로 시작
         turnNumber = 1; // 첫 번째 턴으로 시작

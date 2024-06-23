@@ -695,7 +695,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 279418138}
   serializedVersion: 4
-  m_Mass: 3
+  m_Mass: 2.5
   m_Drag: 0.05
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -809,7 +809,7 @@ Rigidbody:
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0.03
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -839,11 +839,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: 
+  playerNowTile: {fileID: 0}
   movePosition: {x: 0, y: 0, z: 0}
   money: 0
   ownedTiles: []
-  moveSpeed: 5
-  smoothTime: 0.3
+  moveSpeed: 100
+  smoothTime: 0.07
 --- !u!1001 &373450747
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1682,6 +1683,10 @@ MonoBehaviour:
   redDiceRollChecked: 0
   blueDiceRollChecked: 0
   diceOkay: 0
+  targetTileIndex: 0
+  remainIndex: 0
+  movedIndex: 0
+  moveYet: 0
 --- !u!114 &713117090
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2480,6 +2485,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 1c77555fce85aa74da16fd6cadfac6b8, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1c77555fce85aa74da16fd6cadfac6b8, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1c77555fce85aa74da16fd6cadfac6b8, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1c77555fce85aa74da16fd6cadfac6b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.06
       objectReference: {fileID: 0}
@@ -2489,7 +2506,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1c77555fce85aa74da16fd6cadfac6b8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.28
+      value: -0.8
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1c77555fce85aa74da16fd6cadfac6b8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2518,6 +2535,10 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 1c77555fce85aa74da16fd6cadfac6b8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1c77555fce85aa74da16fd6cadfac6b8, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 1c77555fce85aa74da16fd6cadfac6b8, type: 3}
       propertyPath: m_Name
@@ -2713,7 +2734,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1191581616}
   serializedVersion: 4
-  m_Mass: 3
+  m_Mass: 2.5
   m_Drag: 0.05
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -4334,11 +4355,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: 
+  playerNowTile: {fileID: 0}
   movePosition: {x: 0, y: 0, z: 0}
   money: 0
   ownedTiles: []
-  moveSpeed: 5
-  smoothTime: 0.3
+  moveSpeed: 100
+  smoothTime: 0.07
 --- !u!54 &1785437002
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4349,7 +4371,7 @@ Rigidbody:
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0.03
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -4920,8 +4942,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: b33fe6572f5e9b54e85212ea4aaf5a08, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b33fe6572f5e9b54e85212ea4aaf5a08, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b33fe6572f5e9b54e85212ea4aaf5a08, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b33fe6572f5e9b54e85212ea4aaf5a08, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.11988783
+      value: 0.12
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b33fe6572f5e9b54e85212ea4aaf5a08, type: 3}
       propertyPath: m_LocalPosition.y
@@ -4929,7 +4963,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b33fe6572f5e9b54e85212ea4aaf5a08, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.53811073
+      value: 0.72
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b33fe6572f5e9b54e85212ea4aaf5a08, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4958,6 +4992,10 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: b33fe6572f5e9b54e85212ea4aaf5a08, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b33fe6572f5e9b54e85212ea4aaf5a08, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b33fe6572f5e9b54e85212ea4aaf5a08, type: 3}
       propertyPath: m_Name

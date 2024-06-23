@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,13 +8,20 @@ public class Player : MonoBehaviour
 {
     public string playerName; 
     private Vector3 playerPosition;
+    public Tile playerNowTile;
     public Vector3 movePosition;
     public int money;
     public List<CountryTile> ownedTiles;
 
     // Move 함수 구현을 위한 변수
-    public float moveSpeed = 5.0f; // 이동속도 (단위 : 게임 유닛/초)
-    public float smoothTime = 0.3f; // 부드러움 조절 값
+    public float moveSpeed = 100f; // 이동속도 (단위 : 게임 유닛/초)
+    public float smoothTime = 0.1f; // 부드러움 조절 값
+    // Animator 적용을 위한 변수
+    public Animator animator;
+    public bool isMoving = false;
+
+    // 1칸식 이동할 때 마다 Event를 GameManager에 전달
+    public static event Action PlayerMoveEndEvent;
 
     // Start is called before the first frame update
     void Start()
@@ -22,12 +30,16 @@ public class Player : MonoBehaviour
         playerName = gameObject.name;
         playerPosition = transform.position;
         movePosition = transform.position;
+
+        // 애니메이션 초기화
+        animator = GetComponent<Animator>();
+        animator.SetBool("isRunning", false);
     }
 
     void Update()
     {
-        // 목표 위치가 설정되어 있는경우 = 현 위치-목표 위치 거리가 있을 경우(>0.1f) Move() 작동
-        if (movePosition != null && (Vector3.Distance(playerPosition, movePosition) > 0.1f)) 
+        // 목표 위치가 지금 위치와 다른 경우 Move() 작동
+        if (movePosition != playerPosition) 
         {
             Move(movePosition);
             Debug.Log("Move activated!");
@@ -40,9 +52,11 @@ public class Player : MonoBehaviour
         float distance = Vector3.Distance(playerPosition, targetPosition);
 
         // 이동 완료 시 스크립트 종료 & 플레이어 위치 갱신
-        if (distance < 0.01f)
+        if (distance <= 0.1f)
         {
-            playerPosition = transform.position;
+            playerPosition = movePosition;
+            Debug.Log("Tile 1칸 이동을 마쳤습니다.");
+            PlayerMoveEndEvent?.Invoke();
             return;
         }
 
@@ -52,6 +66,9 @@ public class Player : MonoBehaviour
 
         // smoothDamp 함수를 사용하여 현재 위치와 목표 위치 사이를 부드럽게 보간
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref direction, smoothTime, moveSpeed);
+
+        // 이동 완료 후 위치 업데이트
+        playerPosition = transform.position;
     }
 
     public void PurchaseTile(CountryTile tile)
