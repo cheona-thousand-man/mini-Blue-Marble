@@ -6,10 +6,14 @@ using UnityEngine;
 
 public class Game : MonoBehaviour
 {
-    public Player currentPlayer;
+    public Player currentPlayer, Winner;
     public List<Player> players;
     public List<Tile> tiles; 
     public int turnNumber;
+
+    // 게임 종료 처리를 위한 오브젝트
+    public GameObject gameEndUI; // Inspector에서 직접 할당
+    public TextMeshProUGUI gameEndUItext;
 
     // GameManager가 실행되기 위한 이벤트
     public static event Action OnGameSetEvent;
@@ -17,11 +21,7 @@ public class Game : MonoBehaviour
     void Start()
     {
         StartCoroutine(WaitForAllPlayerActivated()); // 모든 Player 오브젝트가 활성화 될 때까지 대기 후 실행
-    }
-
-    void Update()
-    {
-        
+        gameEndUItext = gameEndUI.transform.Find("GameEndText").GetComponent<TextMeshProUGUI>();
     }
 
     IEnumerator WaitForAllPlayerActivated()
@@ -82,17 +82,26 @@ public class Game : MonoBehaviour
     {
         // 게임 종료 로직
         Debug.Log("Game Ended!");
+        // 게임 종료 UI 활성화 및 text 설정
+        gameEndUI.SetActive(true);
+        gameEndUItext.text = $"게임이 종료되었습니다\n승자는 {Winner.name}입니다!!";
     }
 
     public void NextTurn()
     {
         // 턴을 변경하고, 해당하는 UI 업데이트
         turnNumber++;
+
+        // 승리 조건 확인
+        CheckVictoryCondition();
+
         GameManager.Instance.uiManager.turnNumber.GetComponent<TextMeshProUGUI>().text = $"{turnNumber}";
         // 다음 플레이어로 턴 변경
         int nextPlayerIndex = (players.IndexOf(currentPlayer) + 1) % players.Count;
         currentPlayer = players[nextPlayerIndex];
         Debug.Log($"Turn {turnNumber} : {currentPlayer.playerName}'s turn.");
+        // 변경된 플레이어 UI 반영
+        GameManager.Instance.uiManager.turnPlayerText.text = $"{currentPlayer.playerName}";
         // 다음 턴 진행
         GameManager.Instance.HandleTurn();
     }
@@ -102,10 +111,18 @@ public class Game : MonoBehaviour
         // 승리 조건 확인 및 처리 로직
         foreach (Player player in players)
         {
-            // 자산 기준으로 승리 조건을 확인하는 로직
-            if (player.money >= 20000 || turnNumber >= 21)
+            // 자산 기준 & 진행 턴 수로 승리 조건을 확인하는 로직
+            if (player.money >= 15000 || turnNumber >= 11)
             { 
-                Debug.Log($"{player.playerName} wins the game!");
+                int maxMoney = 0;
+                foreach (Player whoWinner in players)
+                {
+                    if (whoWinner.money > maxMoney)
+                    {
+                        maxMoney = whoWinner.money;
+                        Winner = whoWinner;
+                    }
+                }
                 EndGame();
                 break;
             }

@@ -10,8 +10,9 @@ public class UIManager : MonoBehaviour
     // PlayerInfoBG를 참조하는 오브젝트
     public GameObject player1InfoBG, player2InfoBG;
     public TextMeshProUGUI p1NameText, p2NameText, p1MoneyText, p2MoneyText;
+    public Text turnPlayerText;
     // Turn 정보를 저장하는 오브젝트
-    public GameObject turnPanel, turnNumber; // 해당 오브젝트는 기본 비활성화 상태로, 유니티 inspector에서 직접 할당
+    public GameObject turnPanel, turnNumber, turnPlayer; // 해당 오브젝트는 기본 비활성화 상태로, 유니티 inspector에서 직접 할당
 
     // GameManager와의 순차 실행을 위한 Event
     public static event Action InitializeUIEvent; // UI 초기화 후 GameManager 호출
@@ -49,6 +50,9 @@ public class UIManager : MonoBehaviour
         // 게임 시작에 따라 턴 정보 표시
         turnPanel.SetActive(true);
         turnNumber.SetActive(true);
+        turnPlayer.SetActive(true);
+        turnPlayerText = turnPlayer.transform.Find("TurnPlayerText").GetComponent<Text>();
+        turnPlayerText.text = $"{GameManager.Instance.game.currentPlayer.playerName}";
 
         // 시작 플레이어 안내
         Debug.Log($"Turn {GameManager.Instance.game.turnNumber} : {GameManager.Instance.game.currentPlayer.playerName}'s turn.");

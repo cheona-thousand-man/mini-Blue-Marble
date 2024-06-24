@@ -279,6 +279,11 @@ public class GameManager : MonoBehaviour
         if (game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + movedIndex) % game.tiles.Count].name == "StartLand")
         {
             game.currentPlayer.money += 500;
+            // 완주 보상 수령 즉시 Collider 비활성화
+            if (game.currentPlayer.GetComponent<CapsuleCollider>().enabled)
+            {
+                game.currentPlayer.GetComponent<CapsuleCollider>().enabled = false;
+            }
             uiManager.UpdateUI(); // UI에 변경된 Money 반영
             if (!getSalaryUI.activeSelf) // getSalaryUI가 비활성화면 실행
             {
@@ -327,12 +332,12 @@ public class GameManager : MonoBehaviour
                     goldenCardUI.SetActive(true); // 황금카드 UI 활성화
                 } 
                 Invoke("GoldenCardUIoff", 2.0f);
-                Invoke("ProcessTurnEnd", 0f); // 황금카드 Tile 처리 종료 시 턴 종료 Event 발생
+                Invoke("ProcessTurnEnd", 2.0f); // 황금카드 Tile 처리 종료 시 턴 종료 Event 발생
              }
              // 목표 지점이 StartLand면 턴 종료 Event 발생
              else if (game.currentPlayer.playerNowTile.name == "StartLand")
              {
-                Invoke("ProcessTurnEnd", 0f); // 시작지점 Tile 처리 종료 시 턴 종료 Event 발생
+                Invoke("ProcessTurnEnd", 2.0f); // 시작지점 Tile 처리 종료 시 턴 종료 Event 발생
              }
              // 목표 지점이 CountyTile이면 Tile 이벤트 처리 필요
              else 
@@ -406,6 +411,7 @@ public class GameManager : MonoBehaviour
 
     public void PayRentUIon()
     {
+        Debug.Log("렌트비를 지불합니다.");
         // 안내 UI 켜기
         if (!payRentUI.activeSelf) // 비활성화면 실행
         {

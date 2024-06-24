@@ -96,12 +96,17 @@ public class Player : MonoBehaviour
     {
         GameManager.Instance.game.currentPlayer.money -= rentAmount;
         GameManager.Instance.uiManager.UpdateUI(); // 줄어든 돈 UI 반영
+        // 지불 즉시 Collider 비활성화
+        if (GameManager.Instance.game.currentPlayer.GetComponent<CapsuleCollider>().enabled)
+        {
+            GameManager.Instance.game.currentPlayer.GetComponent<CapsuleCollider>().enabled = false;
+        }
         Debug.Log($"{playerName} paid ${rentAmount} in rent.");
         
         // 요급 지불 UI
         GameManager.Instance.PayRentUIon();
         Invoke("PayRentUIoff", 2.0f);
-        Invoke("ProcessTurnEnd", 0f); // 요금 지불 시 Country Tile 이벤트 종료하여 ProcessTurnEnd() 호출
+        Invoke("ProcessTurnEnd", 2.0f); // 요금 지불 시 Country Tile 이벤트 종료하여 ProcessTurnEnd() 호출
     }
 
     public void DrawGoldenKey()
