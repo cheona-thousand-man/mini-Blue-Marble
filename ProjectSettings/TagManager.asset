@@ -8,6 +8,12 @@ TagManager:
   - BlueDice
   - Wall
   - Tile
+  - DiceFace1
+  - DiceFace2
+  - DiceFace3
+  - DiceFace4
+  - DiceFace5
+  - DiceFace6
   layers:
   - Default
   - TransparentFX

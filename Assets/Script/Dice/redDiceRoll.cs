@@ -5,14 +5,13 @@ using System;
 
 public class redDiceRoll : MonoBehaviour
 {
-    static Rigidbody rbRed;
-    public static Vector3 redDiceVelocity;
+    public static Rigidbody rbRed;
+    // public static Vector3 redDiceVelocity;
 
     // 주사위 굴리면 굴리기 기능 비활성화 하는 이벤트
     public static event Action RedDiceRollEvent;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         rbRed = GetComponent<Rigidbody>();
     }
@@ -20,8 +19,7 @@ public class redDiceRoll : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        redDiceVelocity = rbRed.velocity;
-
+        // redDiceVelocity = rbRed.velocity; // 주사위 이벤트에 따라 해당 스크립트는 정지 되기 때문에, DiceNumberCheck에서 수행
         // if (Input.GetKeyDown (KeyCode.Space))
         // {
         //     RollDice();
@@ -36,7 +34,7 @@ public class redDiceRoll : MonoBehaviour
         transform.position = new Vector3(-8, 2, 8); // 던지는 위치 조정
         transform.rotation = Quaternion.identity; // 던지는 면 조정 : 주사위에 고정된 던지는 힘이 틀어지는 걸 방지
         // transform.rotation = Quaternion.Euler(10f, 0f, 10f); // x축에 대해 10도 회전 추가
-        rbRed.AddForce(transform.up * UnityEngine.Random.Range(500, 2500));
+        rbRed.AddForce(transform.up * UnityEngine.Random.Range(1500, 2500));
         rbRed.AddTorque (dirX, dirY, dirZ);
         DiceNumberCheck.redDiceNumber = 0;
 

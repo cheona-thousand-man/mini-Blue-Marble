@@ -5,71 +5,97 @@ using UnityEngine;
 
 public class DiceNumberCheck : MonoBehaviour
 {
-    Vector3 redDiceVelocity, blueDiceVelocity;
     public static int redDiceNumber = 0;
     public static int blueDiceNumber = 0;
 
-    // 숫자 확인이 끝났음을 알리는 이벤트 처리
     public static event Action DiceNumberCheckEvent;
 
-    void FixedUpdate() 
+    private bool isChecking = false;
+
+    // 주사위 정지 여부를 판단
+    public static bool IsDiceStopped(Rigidbody rb)
     {
-        redDiceVelocity = redDiceRoll.redDiceVelocity;
-        blueDiceVelocity = blueDiceRoll.blueDiceVelocity;
+        Vector3 angularVelocity = rb.angularVelocity;
+        Vector3 velocity = rb.velocity;
+        float angularVelocityThreshold = 0.1f; // 각도 변화량 임계값
+        float velocityThreshold = 0.1f; // 속도 변화량 임계값
+
+        if (angularVelocity.magnitude < angularVelocityThreshold && velocity.magnitude < velocityThreshold)
+        {
+            return true;
+        }
+        return false;
     }
 
-    void OnTriggerStay(Collider other) 
+    void OnTriggerEnter(Collider other)
     {
-        //redDice number check
-        if (other.gameObject.tag == "RedDice" && redDiceVelocity.x == 0f && redDiceVelocity.y == 0f && redDiceVelocity.z == 0f)
+        // 주사위가 트리거에 들어왔을 때 검사 시작
+        if (!isChecking)
         {
-            switch (other.gameObject.name)
+            isChecking = true;
+            StartCoroutine(CheckDiceNumbersCoroutine());
+        }
+    }
+
+    void OnTriggerStay(Collider other)
+    {
+        // 주사위 숫자 확인
+        if (IsDiceStopped(other.attachedRigidbody))
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(other.transform.position, Vector3.down, out hit, 1f))
             {
-                case "1" :
-                    redDiceNumber = 1;
-                    break;
-                case "2" :
-                    redDiceNumber = 2;
-                    break;
-                case "3" :
-                    redDiceNumber = 3;
-                    break;
-                case "4" :
-                    redDiceNumber = 4;
-                    break;
-                case "5" :
-                    redDiceNumber = 5;
-                    break;
-                case "6" :
-                    redDiceNumber = 6;
-                    break;
+                if (hit.collider.CompareTag("DiceFace1"))
+                {
+                    SetDiceNumber(other, 1);
+                }
+                else if (hit.collider.CompareTag("DiceFace2"))
+                {
+                    SetDiceNumber(other, 2);
+                }
+                else if (hit.collider.CompareTag("DiceFace3"))
+                {
+                    SetDiceNumber(other, 3);
+                }
+                else if (hit.collider.CompareTag("DiceFace4"))
+                {
+                    SetDiceNumber(other, 4);
+                }
+                else if (hit.collider.CompareTag("DiceFace5"))
+                {
+                    SetDiceNumber(other, 5);
+                }
+                else if (hit.collider.CompareTag("DiceFace6"))
+                {
+                    SetDiceNumber(other, 6);
+                }
             }
         }
-        //blueDice number check
-        if (other.gameObject.tag == "BlueDice" && blueDiceVelocity.x == 0f && blueDiceVelocity.y == 0f && blueDiceVelocity.z == 0f)
+    }
+
+    IEnumerator CheckDiceNumbersCoroutine()
+    {
+        // 5초 동안 주사위 숫자 확인
+        yield return new WaitForSeconds(5f);
+
+        // 5초 후에 주사위 숫자 판독 완료
+        Debug.Log("주사위가 모두 멈췄습니다.");
+        Debug.Log($"주사위 숫자 : {redDiceNumber}, {blueDiceNumber}");
+        DiceNumberCheckEvent?.Invoke();
+        isChecking = false;
+    }
+
+    void SetDiceNumber(Collider other, int number)
+    {
+        if (other.CompareTag("RedDice"))
         {
-            switch (other.gameObject.name)
-            {
-                case "1" :
-                    blueDiceNumber = 1;
-                    break;
-                case "2" :
-                    blueDiceNumber = 2;
-                    break;
-                case "3" :
-                    blueDiceNumber = 3;
-                    break;
-                case "4" :
-                    blueDiceNumber = 4;
-                    break;
-                case "5" :
-                    blueDiceNumber = 5;
-                    break;
-                case "6" :
-                    blueDiceNumber = 6;
-                    break;
-            }
-            DiceNumberCheckEvent?.Invoke(); // 숫자 확인이 끝났음을 넘겨줌
+            redDiceNumber = number;
+            Debug.Log($"RedDice 숫자 : {redDiceNumber}");
+        }
+        else if (other.CompareTag("BlueDice"))
+        {
+            blueDiceNumber = number;
+            Debug.Log($"BlueDice 숫자 : {blueDiceNumber}");
         }
     }
 }

@@ -10,15 +10,12 @@ public class UIManager : MonoBehaviour
     // PlayerInfoBG를 참조하는 오브젝트
     public GameObject player1InfoBG, player2InfoBG;
     public TextMeshProUGUI p1NameText, p2NameText, p1MoneyText, p2MoneyText;
+    public Text turnPlayerText;
     // Turn 정보를 저장하는 오브젝트
-    public GameObject turnPanel, turnNumber; // 해당 오브젝트는 기본 비활성화 상태로, 유니티 inspector에서 직접 할당
-
-    // 주사위 결과
-    public int diceResult;
+    public GameObject turnPanel, turnNumber, turnPlayer; // 해당 오브젝트는 기본 비활성화 상태로, 유니티 inspector에서 직접 할당
 
     // GameManager와의 순차 실행을 위한 Event
     public static event Action InitializeUIEvent; // UI 초기화 후 GameManager 호출
-    public static event Action UpdateUIEvent; // UI 갱신 후 GameManager 호출
 
     void OnEnable() 
     {
@@ -53,6 +50,12 @@ public class UIManager : MonoBehaviour
         // 게임 시작에 따라 턴 정보 표시
         turnPanel.SetActive(true);
         turnNumber.SetActive(true);
+        turnPlayer.SetActive(true);
+        turnPlayerText = turnPlayer.transform.Find("TurnPlayerText").GetComponent<Text>();
+        turnPlayerText.text = $"{GameManager.Instance.game.currentPlayer.playerName}";
+
+        // 시작 플레이어 안내
+        Debug.Log($"Turn {GameManager.Instance.game.turnNumber} : {GameManager.Instance.game.currentPlayer.playerName}'s turn.");
 
         // 초기화 완료되어 턴:1 을 실행하기 위한 이벤트 발생
         InitializeUIEvent?.Invoke();
@@ -71,16 +74,21 @@ public class UIManager : MonoBehaviour
             Debug.LogError("Current player is null.");
             return;
         }
-
-        // currentPlayerInfo = $"Current Player : {GameManager.Instance.game.currentPlayer.playerName}";
-        diceResult = DiceNumberCheck.redDiceNumber + DiceNumberCheck.blueDiceNumber;
-        // Debug.Log($"{currentPlayerInfo}의 주사위 결과는 {diceResult}.");
         // 이하 UI 업데이트 로직 추가
+
+        // 플레이어 정보 업데이트 : 플레이어 보유 머니
+        p1MoneyText.text = $"보유현금 : {GameManager.Instance.game.players[0].money}";
+        p2MoneyText.text = $"보유현금 : {GameManager.Instance.game.players[1].money}";
     }
 
     public void ShowMessage(string message)
     {
         // 메세지를 화면에 표시하는 로직
         Debug.Log(message);
+    }
+
+    public void EndTurnUI()
+    {
+
     }
 }

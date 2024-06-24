@@ -1,38 +1,27 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Game : MonoBehaviour
 {
-    public Player currentPlayer;
+    public Player currentPlayer, Winner;
     public List<Player> players;
     public List<Tile> tiles; 
     public int turnNumber;
 
+    // 게임 종료 처리를 위한 오브젝트
+    public GameObject gameEndUI; // Inspector에서 직접 할당
+    public TextMeshProUGUI gameEndUItext;
+
     // GameManager가 실행되기 위한 이벤트
     public static event Action OnGameSetEvent;
-
-    void OnEnable() 
-    {
-        // GameManager 스크립트의 이벤트 구독
-        // GameManager.TurnEndEvent += void();    
-    }
-
-    void OnDisable() 
-    {
-        // GameManager 스크립트의 이벤트 구독 해제
-        // GameManager.TurnEndEvent -= void();    
-    }
 
     void Start()
     {
         StartCoroutine(WaitForAllPlayerActivated()); // 모든 Player 오브젝트가 활성화 될 때까지 대기 후 실행
-    }
-
-    void Update()
-    {
-        
+        gameEndUItext = gameEndUI.transform.Find("GameEndText").GetComponent<TextMeshProUGUI>();
     }
 
     IEnumerator WaitForAllPlayerActivated()
@@ -77,10 +66,12 @@ public class Game : MonoBehaviour
     public void StartGame()
     {
         // 게임 초기화 로직
-        foreach (Player player in players) // 플레이어 게임 시작 머니 세팅
+        foreach (Player player in players) // 플레이어 게임 시작 머니, 시작 타일 세팅
         {
             player.money = 10000;
             Debug.Log($"플레이어 {player.playerName}의 돈이 {player.money}로 초기화되었습니다.");
+            player.playerNowTile = tiles[0];
+            Debug.Log($"플레이어 {player.playerName}의 시작 위치가 {player.playerNowTile.name}로 초기화되었습니다.");
         }
         currentPlayer = players[0]; // 첫 번째 플레이어로 시작
         turnNumber = 1; // 첫 번째 턴으로 시작
@@ -91,15 +82,28 @@ public class Game : MonoBehaviour
     {
         // 게임 종료 로직
         Debug.Log("Game Ended!");
+        // 게임 종료 UI 활성화 및 text 설정
+        gameEndUI.SetActive(true);
+        gameEndUItext.text = $"게임이 종료되었습니다\n승자는 {Winner.name}입니다!!";
     }
 
     public void NextTurn()
     {
-        // 다음 턴으로 진행하는 로직
+        // 턴을 변경하고, 해당하는 UI 업데이트
         turnNumber++;
+
+        // 승리 조건 확인
+        CheckVictoryCondition();
+
+        GameManager.Instance.uiManager.turnNumber.GetComponent<TextMeshProUGUI>().text = $"{turnNumber}";
+        // 다음 플레이어로 턴 변경
         int nextPlayerIndex = (players.IndexOf(currentPlayer) + 1) % players.Count;
         currentPlayer = players[nextPlayerIndex];
         Debug.Log($"Turn {turnNumber} : {currentPlayer.playerName}'s turn.");
+        // 변경된 플레이어 UI 반영
+        GameManager.Instance.uiManager.turnPlayerText.text = $"{currentPlayer.playerName}";
+        // 다음 턴 진행
+        GameManager.Instance.HandleTurn();
     }
 
     public void CheckVictoryCondition()
@@ -107,10 +111,18 @@ public class Game : MonoBehaviour
         // 승리 조건 확인 및 처리 로직
         foreach (Player player in players)
         {
-            // 자산 기준으로 승리 조건을 확인하는 로직
-            if (player.money >= 10000)
-            {
-                Debug.Log($"{player.playerName} wins the game!");
+            // 자산 기준 & 진행 턴 수로 승리 조건을 확인하는 로직
+            if (player.money >= 15000 || turnNumber >= 11)
+            { 
+                int maxMoney = 0;
+                foreach (Player whoWinner in players)
+                {
+                    if (whoWinner.money > maxMoney)
+                    {
+                        maxMoney = whoWinner.money;
+                        Winner = whoWinner;
+                    }
+                }
                 EndGame();
                 break;
             }
@@ -271,6 +283,7 @@ public class Game : MonoBehaviour
         foreach (Player player in activePlayers)
         {
             players.Add(player);
+            player.GetComponent<CapsuleCollider>().enabled = false; // 캐릭터 초기값은 충돌감지 x
         }
     }
 }
