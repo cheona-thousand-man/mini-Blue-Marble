@@ -24,9 +24,6 @@ public class GameManager : MonoBehaviour
     public bool moveYet = false; // 플레이어 이동처리 시작하였는지 확인
     public GameObject getSalaryUI, goldenCardUI, doBuyButton, buyCountryUI, payRentUI; // Tile 관련된 오브젝트, Inspector에서 직접 할당
 
-    // Game&UIMnager와 순차 실행을 위한 이벤트
-    public static event Action TurnEndEvent; // 턴이 종료되면 다음 턴 진행
-
     void Awake()
     {
         if (Instance == null)
@@ -148,7 +145,9 @@ public class GameManager : MonoBehaviour
             game.currentPlayer.movePosition = game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + 1) % game.tiles.Count].transform.position;
         }
 
-        // 타일 이벤트 처리 by 이동 종료를 통해 ProcessTileEvent() 호출
+        // 타일 이벤트 처리 ProcessTileEvent() 호출 by 이동 종료
+
+        // 턴 종료를 위해 ProcessTurnEnd() 호출 by Tile 이벤트 처리 종료
 
         diceOkay = false; // 다른 플레이어를 위해 초기화
         moveYet = false;
@@ -163,9 +162,14 @@ public class GameManager : MonoBehaviour
         public void ProcessTurnEnd()
     {
         Debug.Log("정상적으로 사용자의 턴이 종료되었습니다.");
-        // 턴 종료
-        // game.NextTurn();
-        // uiManager.UpdateUI();
+        // 플레이어 Collier 비활성화
+        if (game.currentPlayer.GetComponent<CapsuleCollider>().enabled)
+        {
+            game.currentPlayer.GetComponent<CapsuleCollider>().enabled = false;
+        }
+        // 턴 종료로 다음 턴으로 갱신
+        game.NextTurn();
+        uiManager.UpdateUI();
     }
 
     public void RedDiceRollCheck()
@@ -235,11 +239,22 @@ public class GameManager : MonoBehaviour
         --remainIndex;
         Debug.Log($"이동해야 할 Tile 수 : {remainIndex}");
 
-        // 플레이어가 1칸 이동한 이후부터 Colldier 활성화
+        // 플레이어가 1칸 이동한 이후부터 Colldier 활성화 점검 + 중간에 Country/Golden Tile은 만나도 활성화 되지 않게
         if (!game.currentPlayer.GetComponent<CapsuleCollider>().enabled)
         {
-            game.currentPlayer.GetComponent<CapsuleCollider>().enabled = true;
+            if (game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + movedIndex) % game.tiles.Count].name == "StartLand")
+            {
+                game.currentPlayer.GetComponent<CapsuleCollider>().enabled = true;
+            }
         }
+        else
+        {
+            if (game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + movedIndex) % game.tiles.Count].name != "StartLand")
+            {
+                game.currentPlayer.GetComponent<CapsuleCollider>().enabled = false;
+            }
+        }
+
 
         // 모서리 Tile일 경우 플레이어 방향 90도 회전
             switch (game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + movedIndex) % game.tiles.Count].name)
@@ -283,10 +298,21 @@ public class GameManager : MonoBehaviour
             game.currentPlayer.playerNowTile = game.tiles[targetTileIndex];
             Debug.Log($"이동을 마치고 목표지점 {game.tiles[targetTileIndex].name}에 도착했습니다.");
 
-            // 목표 지점에 도착하여 플레이어 Collider 비활성화
-            if (game.currentPlayer.GetComponent<CapsuleCollider>().enabled)
+            // 목표 지점에 도착하여 플레이어 Collider 활성화 + StartLand에서는 비활성화
+            if (!game.currentPlayer.GetComponent<CapsuleCollider>().enabled)
             {
-                game.currentPlayer.GetComponent<CapsuleCollider>().enabled = false;
+                
+                if (game.currentPlayer.playerNowTile.name != "StartLand")
+                {
+                    game.currentPlayer.GetComponent<CapsuleCollider>().enabled = true;
+                }
+            }
+            else
+            {
+                if (game.currentPlayer.playerNowTile.name == "StartLand")
+                {
+                    game.currentPlayer.GetComponent<CapsuleCollider>().enabled = false;
+                }
             }
 
             // 목표 지점이 GoldenKey이면 UI 실행

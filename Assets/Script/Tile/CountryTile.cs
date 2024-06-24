@@ -32,6 +32,7 @@ public class CountryTile : Tile
             int rentAmount = CalculateRent();
             player.PayRent(rentAmount);
             owner.money += rentAmount;
+            GameManager.Instance.uiManager.UpdateUI(); // 늘어난 돈 UI 반영
         }
         // else if (owner == player) // 빌딩 건설 기능은 나중에 구현
         // {

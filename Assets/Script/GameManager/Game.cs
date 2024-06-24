@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Game : MonoBehaviour
@@ -12,18 +13,6 @@ public class Game : MonoBehaviour
 
     // GameManager가 실행되기 위한 이벤트
     public static event Action OnGameSetEvent;
-
-    void OnEnable() 
-    {
-        // GameManager 스크립트의 이벤트 구독
-        // GameManager.TurnEndEvent += void();    
-    }
-
-    void OnDisable() 
-    {
-        // GameManager 스크립트의 이벤트 구독 해제
-        // GameManager.TurnEndEvent -= void();    
-    }
 
     void Start()
     {
@@ -97,11 +86,15 @@ public class Game : MonoBehaviour
 
     public void NextTurn()
     {
-        // 다음 턴으로 진행하는 로직
+        // 턴을 변경하고, 해당하는 UI 업데이트
         turnNumber++;
+        GameManager.Instance.uiManager.turnNumber.GetComponent<TextMeshProUGUI>().text = $"{turnNumber}";
+        // 다음 플레이어로 턴 변경
         int nextPlayerIndex = (players.IndexOf(currentPlayer) + 1) % players.Count;
         currentPlayer = players[nextPlayerIndex];
         Debug.Log($"Turn {turnNumber} : {currentPlayer.playerName}'s turn.");
+        // 다음 턴 진행
+        GameManager.Instance.HandleTurn();
     }
 
     public void CheckVictoryCondition()
@@ -110,8 +103,8 @@ public class Game : MonoBehaviour
         foreach (Player player in players)
         {
             // 자산 기준으로 승리 조건을 확인하는 로직
-            if (player.money >= 10000)
-            {
+            if (player.money >= 20000 || turnNumber >= 21)
+            { 
                 Debug.Log($"{player.playerName} wins the game!");
                 EndGame();
                 break;

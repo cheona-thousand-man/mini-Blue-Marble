@@ -50,6 +50,9 @@ public class UIManager : MonoBehaviour
         turnPanel.SetActive(true);
         turnNumber.SetActive(true);
 
+        // 시작 플레이어 안내
+        Debug.Log($"Turn {GameManager.Instance.game.turnNumber} : {GameManager.Instance.game.currentPlayer.playerName}'s turn.");
+
         // 초기화 완료되어 턴:1 을 실행하기 위한 이벤트 발생
         InitializeUIEvent?.Invoke();
     }
