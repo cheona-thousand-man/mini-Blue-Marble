@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     public bool diceOkay = false; // 주사위 숫자를 확인하여 이상이 있을 경우 재시도
     public int targetTileIndex, remainIndex, movedIndex; // 플레이어 목적지 타일, 아직 남은 수, 이동한 수
     public bool moveYet = false; // 플레이어 이동처리 시작하였는지 확인
-    public GameObject getSalaryUI, goldenCardUI; // Tile 관련된 오브젝트, Inspector에서 직접 할당
+    public GameObject getSalaryUI, goldenCardUI, doBuyButton, buyCountryUI, payRentUI; // Tile 관련된 오브젝트, Inspector에서 직접 할당
 
     // Game&UIMnager와 순차 실행을 위한 이벤트
     public static event Action TurnEndEvent; // 턴이 종료되면 다음 턴 진행
@@ -46,7 +46,6 @@ public class GameManager : MonoBehaviour
         Game.OnGameSetEvent += InitializeGame;    
         // UIManager 스크립트의 이벤트 구독
         UIManager.InitializeUIEvent += HandleTurn;
-        // UIManager.UpdateUIEvent += ; 
         // DiceRoll 스트립트의 이벤트 구독
         redDiceRoll.RedDiceRollEvent += RedDiceRollCheck;
         blueDiceRoll.BlueDiceRollEvent += BlueDiceRollCheck;
@@ -54,6 +53,8 @@ public class GameManager : MonoBehaviour
         DiceNumberCheck.DiceNumberCheckEvent += DiceNumberOkay;
         // Player 스크립트의 이벤트 구독
         Player.PlayerMoveEndEvent += PlayerMoveOneTile;
+        // Tile 스크립트의 이벤트 구독
+        Tile.EndTileEvent += ProcessTurnEnd;
     }
 
     void OnDisable() 
@@ -62,7 +63,6 @@ public class GameManager : MonoBehaviour
         Game.OnGameSetEvent -= InitializeGame;    
         // UIManager 스크립트의 이벤트 구독 해제
         UIManager.InitializeUIEvent -= HandleTurn;
-        // UIManager.UpdateUIEvent -= ; 
         // DiceRoll 스트립트의 이벤트 구독 해제
         redDiceRoll.RedDiceRollEvent -= RedDiceRollCheck;
         blueDiceRoll.BlueDiceRollEvent -= BlueDiceRollCheck;
@@ -70,6 +70,8 @@ public class GameManager : MonoBehaviour
         DiceNumberCheck.DiceNumberCheckEvent -= DiceNumberOkay;
         // Player 스크립트의 이벤트 구독 해제
         Player.PlayerMoveEndEvent -= PlayerMoveOneTile;
+        // Tile 스크립트의 이벤트 구독 해제
+        Tile.EndTileEvent -= ProcessTurnEnd;
     }
 
     void InitializeGame()
@@ -146,22 +148,24 @@ public class GameManager : MonoBehaviour
             game.currentPlayer.movePosition = game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + 1) % game.tiles.Count].transform.position;
         }
 
-        // 타일 이벤트 처리
-        ProcessTileEvent(targetTileIndex, game.currentPlayer);
-
-        // 턴 종료
-        // game.NextTurn();
-        // uiManager.UpdateUI();
+        // 타일 이벤트 처리 by 이동 종료를 통해 ProcessTileEvent() 호출
 
         diceOkay = false; // 다른 플레이어를 위해 초기화
         moveYet = false;
     }
 
-    public void ProcessTileEvent(int tileIndex, Player player)
+    public void ProcessTileEvent()
     {
-        Tile tile = game.tiles[tileIndex];
-        tile.OnLand(player);
-        uiManager.UpdateUI();
+        Tile tile = game.tiles[targetTileIndex];
+        tile.OnLand(game.currentPlayer);
+    }
+
+        public void ProcessTurnEnd()
+    {
+        Debug.Log("정상적으로 사용자의 턴이 종료되었습니다.");
+        // 턴 종료
+        // game.NextTurn();
+        // uiManager.UpdateUI();
     }
 
     public void RedDiceRollCheck()
@@ -256,7 +260,7 @@ public class GameManager : MonoBehaviour
                     break;
             }
 
-        // 플레이어가 시작타일을 지날 경우 월급 500 지급
+        // 이동 중 플레이어가 시작타일을 지날 경우 월급 500 지급
         if (game.tiles[(game.tiles.IndexOf(game.currentPlayer.playerNowTile) + movedIndex) % game.tiles.Count].name == "StartLand")
         {
             game.currentPlayer.money += 500;
@@ -290,20 +294,31 @@ public class GameManager : MonoBehaviour
             game.currentPlayer.playerNowTile.name == "GoldenKeyLine2" ||
             game.currentPlayer.playerNowTile.name == "GoldenKeyLine3")
             {
+                game.currentPlayer.money += 1000;
                 uiManager.UpdateUI(); // 지급된 보상 반영
                 if (!goldenCardUI.activeSelf) // goldenCardUI가 비활성화면 실행
                 {
                     goldenCardUI.SetActive(true); // 황금카드 UI 활성화
                 } 
                 Invoke("GoldenCardUIoff", 2.0f);
+                Invoke("ProcessTurnEnd", 0f); // 황금카드 Tile 처리 종료 시 턴 종료 Event 발생
+             }
+             // 목표 지점이 StartLand면 턴 종료 Event 발생
+             else if (game.currentPlayer.playerNowTile.name == "StartLand")
+             {
+                Invoke("ProcessTurnEnd", 0f); // 시작지점 Tile 처리 종료 시 턴 종료 Event 발생
+             }
+             // 목표 지점이 CountyTile이면 Tile 이벤트 처리 필요
+             else 
+             {
+                // 이동이 종료되어 애니메이션 복구(run->idle)
+                game.currentPlayer.isMoving = false;
+                game.currentPlayer.animator.SetBool("isRunning", false);
+                Invoke("ProcessTileEvent", 0f); // 이동 종료하여 바로 ProcessTileEvent() 호출
+                return; 
              }
 
-            // 이동이 종료되어 애니메이션 복구(run->idle)
-            game.currentPlayer.isMoving = false;
-            game.currentPlayer.animator.SetBool("isRunning", false);
-
-            Invoke("HandleTurn", 0f); // 이동 종료하여 바로 HandleTurn 호출
-            return; 
+            
         }
     }
 
@@ -317,10 +332,67 @@ public class GameManager : MonoBehaviour
 
     public void GoldenCardUIoff()
     {
+        // 금액 보상 반영
+        uiManager.UpdateUI();
         // 안내 UI 끄기
         if (goldenCardUI.activeSelf) // goldenCardUI가 활성화면 실행
         {
             goldenCardUI.SetActive(false); // 황금카드 UI 비활성화
+        } 
+    }
+
+    public void DoYouBuyCountryUIon()
+    {
+        // 안내 UI 켜기
+        if (!doBuyButton.activeSelf) // 비활성화면 실행
+        {
+            doBuyButton.SetActive(true); // UI 활성
+        } 
+    }
+
+    public void DoYouBuyCountryUIoff()
+    {
+        // 안내 UI 끄기
+        if (doBuyButton.activeSelf) // 활성화면 실행
+        {
+            doBuyButton.SetActive(false); // UI 비활성
+        } 
+    }
+
+    public void BuyCountryUIon()
+    {
+        // 안내 UI 켜기
+        if (!buyCountryUI.activeSelf) // 비활성화면 실행
+        {
+            buyCountryUI.SetActive(true); // UI 활성
+        } 
+    }
+
+    public void BuyCountryUIoff()
+    {
+        // 안내 UI 끄기
+        if (buyCountryUI.activeSelf) // 활성화면 실행
+        {
+            buyCountryUI.SetActive(false); // UI 비활성
+        } 
+        Invoke("ProcessTurnEnd", 0f); // 구매 완료 시 Country Tile 이벤트 종료하여 ProcessTurnEnd() 호출
+    }
+
+    public void PayRentUIon()
+    {
+        // 안내 UI 켜기
+        if (!payRentUI.activeSelf) // 비활성화면 실행
+        {
+            payRentUI.SetActive(true); // UI 활성
+        } 
+    }
+
+    public void PayRentUIoff()
+    {
+        // 안내 UI 끄기
+        if (payRentUI.activeSelf) // 활성화면 실행
+        {
+            payRentUI.SetActive(false); // UI 비활성
         } 
     }
 }

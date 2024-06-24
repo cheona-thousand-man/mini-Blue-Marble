@@ -15,7 +15,6 @@ public class UIManager : MonoBehaviour
 
     // GameManager와의 순차 실행을 위한 Event
     public static event Action InitializeUIEvent; // UI 초기화 후 GameManager 호출
-    public static event Action UpdateUIEvent; // UI 갱신 후 GameManager 호출
 
     void OnEnable() 
     {
@@ -79,5 +78,10 @@ public class UIManager : MonoBehaviour
     {
         // 메세지를 화면에 표시하는 로직
         Debug.Log(message);
+    }
+
+    public void EndTurnUI()
+    {
+
     }
 }

@@ -71,14 +71,20 @@ public class Player : MonoBehaviour
         playerPosition = transform.position;
     }
 
-    public void PurchaseTile(CountryTile tile)
+    public void PurchaseTile(CountryTile tile, Player player)
     {
-        if (money >= tile.purchaseCost && tile.owner == null)
+        if (tile.owner == null) // 빚져서도 구매 가능 | money >= tile.purchaseCost && tile.owner == null
         {
-            money -= tile.purchaseCost;
+            money -= tile.purchaseCost; // 임시 방편으로 첫 객체의 금액 가져오기
             ownedTiles.Add(tile);
-            tile.owner = this;
-            Debug.Log($"{playerName} purchaed {tile.name}.");
+            tile.owner = player;
+            Debug.Log($"{playerName} purchaed {tile.name}. Cost is {tile.purchaseCost}");
+            GameManager.Instance.uiManager.UpdateUI(); // 줄어든 돈 UI 반영
+            ownedTiles.Add(tile); // 구매한 Tile 소유목록에 추가
+            foreach (Tile myTile in ownedTiles)
+            {
+                Debug.Log($"my{myTile.name} ");
+            }
         }
         else
         {
@@ -88,13 +94,13 @@ public class Player : MonoBehaviour
 
     public void PayRent(int rentAmount)
     {
-        money -= rentAmount;
+        GameManager.Instance.game.currentPlayer.money -= rentAmount;
         Debug.Log($"{playerName} paid ${rentAmount} in rent.");
     }
 
     public void DrawGoldenKey()
     {
         Debug.Log($"{playerName} drew a golden key!");
-        money += 1000; // 돈 지급 UI는 GameManager에서 처리
+        // money += 1000; // 돈 지급 처리는 GameManager에서 처리
     }
 }

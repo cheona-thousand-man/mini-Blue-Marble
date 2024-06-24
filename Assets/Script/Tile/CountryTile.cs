@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class CountryTile : Tile
 {
     public Player owner;
-    public int purchaseCost;
-    public int baseRentCost;
+    public int purchaseCost = 100;
+    public int baseRentCost = 150;
     public List<BuildingType> buildings;
 
     private void OnTriggerEnter(Collider other) {
@@ -24,6 +25,7 @@ public class CountryTile : Tile
         if (owner == null)
         {
             Debug.Log($"{player.playerName} landed on unowned Country Tile and can purchase it for ${purchaseCost}.");
+            GameManager.Instance.DoYouBuyCountryUIon(); // 구매할지 안내 UI
         }
         else if (owner != player)
         {
@@ -31,6 +33,17 @@ public class CountryTile : Tile
             player.PayRent(rentAmount);
             owner.money += rentAmount;
         }
+        // else if (owner == player) // 빌딩 건설 기능은 나중에 구현
+        // {
+
+        // }
+    }
+
+    public void OnBuyButtonClick()
+    {
+        Debug.Log("구매 버튼이 클릭되었습니다.");
+
+        
     }
 
     public void Purchase(Player player)
